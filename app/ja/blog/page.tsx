@@ -9,20 +9,39 @@ export const metadata: Metadata = {
   alternates: { canonical: "/ja/blog" },
 };
 
-export default function JaNewsBlogList() {
-  const posts = getAllPosts("ja");
+export default async function JaNewsBlogList({ searchParams }: { searchParams: Promise<{ tag?: string }> }) {
+  const { tag } = await searchParams;
+  const allPosts = getAllPosts("ja");
+  const posts = tag ? allPosts.filter(p => p.tags?.includes(tag)) : allPosts;
+
   return (
     <div>
-      <header className="mb-10 border-b border-gray-100 pb-6">
-        <h1 className="text-2xl font-bold mb-1">記事一覧</h1>
-        <p className="text-gray-400 text-sm">全{posts.length}本</p>
+      <header className="mb-8 border-b border-gray-100 pb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold mb-1">全記事</h1>
+            <p className="text-gray-400 text-sm">全{posts.length}件</p>
+          </div>
+          {tag && (
+            <div className="flex items-center gap-2">
+              <span style={{ backgroundColor: "var(--color-primary)", color: "#fff" }} className="text-xs px-3 py-1 rounded-full font-medium">
+                #{tag}
+              </span>
+              <a href="/ja/blog" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">全て見る ×</a>
+            </div>
+          )}
+        </div>
       </header>
+
       {posts.length === 0 ? (
-        <p className="text-gray-400 text-center py-20">記事はまだありません。</p>
+        <div className="text-center py-20">
+          <p className="text-gray-400 mb-3">&apos;{tag}&apos;の記事はありません。</p>
+          <a href="/ja/blog" style={{ color: "var(--color-primary)" }} className="text-sm">全記事を見る →</a>
+        </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6">
           {posts.map(post => (
-            <article key={post.slug} className="group border-b border-gray-100 pb-8">
+            <article key={post.slug} className="group border-b border-gray-100 pb-6">
               <Link href={`/ja/blog/${post.slug}`} className="flex gap-5 items-start">
                 {post.image && (
                   <div className="relative shrink-0 w-40 h-24 rounded-xl overflow-hidden bg-gray-100">
@@ -30,7 +49,7 @@ export default function JaNewsBlogList() {
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-lg font-semibold mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">{post.title}</h2>
+                  <h2 className="text-lg font-semibold mb-2 group-hover:text-red-600 transition-colors line-clamp-2">{post.title}</h2>
                   <p className="text-gray-500 text-sm mb-3 line-clamp-2">{post.description}</p>
                   <div className="flex items-center gap-3 text-xs text-gray-400">
                     <time>{new Date(post.publishedAt).toLocaleDateString("ja-JP")}</time>
@@ -39,6 +58,18 @@ export default function JaNewsBlogList() {
                   </div>
                 </div>
               </Link>
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {post.tags?.slice(0, 4).map(t => (
+                  <a
+                    key={t}
+                    href={`/ja/blog?tag=${encodeURIComponent(t)}`}
+                    style={t === tag ? { backgroundColor: "var(--color-primary)", color: "#fff" } : {}}
+                    className="text-xs bg-gray-100 hover:bg-red-50 hover:text-red-600 px-2 py-0.5 rounded-full transition-colors"
+                  >
+                    {t}
+                  </a>
+                ))}
+              </div>
             </article>
           ))}
         </div>

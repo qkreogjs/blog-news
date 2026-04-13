@@ -23,7 +23,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={lang}>
-      <body className="bg-white text-gray-900 antialiased">
+      <body className="antialiased" style={{ backgroundColor: "var(--color-bg)", color: "var(--color-text)" }}>
         {children}
         <Script id="schema-website" type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema()) }} />
